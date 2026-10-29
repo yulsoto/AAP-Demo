@@ -40,13 +40,13 @@ sqli() {  echo "q=' OR 1=1 --"; }
 xss()  {  echo "q=<script>alert(document.cookie)</script>"; }
 ssrf() {  echo "url=http://169.254.169.254/latest/meta-data/iam/security-credentials/"; }
 
-send() {  # pais ip descripcion param=valor
-  local pais="$1" ip="$2" desc="$3" kv="$4"
+send() {  # pais ip descripcion param=valor [endpoint]
+  local pais="$1" ip="$2" desc="$3" kv="$4" ep="${5:-/search}"
   local code
   code=$(curl -s -o /dev/null -w "%{http_code}" -A "$UA" \
-    -H "X-Forwarded-For: $ip" -G --data-urlencode "$kv" "$TARGET/search")
+    -H "X-Forwarded-For: $ip" -G --data-urlencode "$kv" "$TARGET$ep")
   local color="$G"; [ "$code" = "403" ] && color="$R"
-  printf "   %-9s %-18s %-8s ${color}HTTP %s${N}\n" "$pais" "$ip" "$desc" "$code"
+  printf "   %-9s %-18s %-10s ${color}HTTP %s${N}\n" "$pais" "$ip" "$desc" "$code"
 }
 
 echo "${B}== geo-mix: ataques desde varios paises -> $TARGET (${ROUNDS} vueltas) ==${N}"
@@ -60,6 +60,7 @@ for r in $(seq 1 "$ROUNDS"); do
     send "$pais" "$ip" "SQLi"    "$(sqli)"
     send "$pais" "$ip" "XSS"     "$(xss)"
     send "$pais" "$ip" "SSRF"    "$(ssrf)"
+    send "$pais" "$ip" "CodeInj" "formula=dir(sys)" "/report"
     # un par de scans "limpios" para que tambien haya senal de scanner
     curl -s -o /dev/null -A "$UA" -H "X-Forwarded-For: $ip" \
       -G --data-urlencode "q=maria" "$TARGET/search"

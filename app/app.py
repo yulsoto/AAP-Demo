@@ -90,6 +90,21 @@ def search():
     return jsonify(results=[{"id": r[0], "name": r[1], "record": r[2]} for r in rows])
 
 
+@app.get("/report")
+def report():
+    """Generador de reportes con 'formula'. VULNERABLE a code injection (Python).
+
+    Simula un campo donde el usuario mete una formula que la app evalua.
+    Vector de ataque: ?formula=dir(sys)  -> introspeccion / SSTI en Python.
+    """
+    formula = request.args.get("formula", "1+1")
+    # >>> LINEA VULNERABLE: evalua input del usuario como codigo Python.
+    # RASP (exploit prevention) engancha eval() y detecta el intento en runtime,
+    # con stack trace a esta linea. Tambien lo marca IAST / Code Security.
+    result = eval(f"{formula}")  # noqa: S307  (a proposito, para la demo)
+    return jsonify(formula=formula, result=str(result))
+
+
 @app.post("/login")
 def login():
     """Login expuesto a credential stuffing -> senal de ATO en AAP."""

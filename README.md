@@ -85,6 +85,24 @@ la base**, con stack trace de la línea exacta.
 
 > Requiere `ddtrace>=2.21`. La versión del lab ya cumple.
 
+## Vector Python: code injection / SSTI (`dir(sys)`)
+
+El endpoint `/report?formula=` evalúa el input con `eval()` (vulnerable a
+propósito). El atacante inyecta expresiones de introspección de Python:
+
+```bash
+./attack/python-injection.sh http://localhost:8080
+# o directo:
+curl -G --data-urlencode "formula=dir(sys)" http://localhost:8080/report
+```
+
+Lo detecta **Code Security / IAST** (sink `CODE_INJECTION`): marca el `eval()` de
+`app.py` en la línea exacta, con el input contaminado (`dir(sys)`,
+`__import__('os')...`, la gadget chain de `object.__subclasses__()`). Devuelve
+`200` porque es detección en runtime, no un bloqueo de WAF de input. Requiere
+`DD_IAST_ENABLED=true` (ya está en `docker-compose.yml`). `geo-mix.sh` también
+manda este vector para que aparezca en la serie "attack attempts by type".
+
 ## Variar tipos de ataque y geografía (poblar geomap y serie "by type")
 
 `attack/geo-mix.sh` manda SQLi, XSS, SSRF y scanner desde IPs de 10 países
