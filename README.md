@@ -36,7 +36,7 @@ cd terraform
 cat > terraform.tfvars <<'EOF'
 key_name   = "mi-keypair"
 dd_api_key = "xxxxx"
-repo_url   = "https://github.com/<tu-org>/lab-aap-prosperia.git"
+repo_url   = "https://github.com/yulsoto/AAP-Demo.git"
 allowed_cidrs = ["TU.IP.PUBLICA/32"]
 EOF
 terraform init && terraform apply
