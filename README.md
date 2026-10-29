@@ -57,6 +57,20 @@ terraform init && terraform apply
 | 7 | **Señal de ATO** (credential stuffing) → bloquear al usuario o las IPs | Gancho hacia el session hijacking |
 | 8 | **Next steps / Bits AI / Case** → remediación + vulnerabilidad IAST en la línea exacta del f-string | Qué te sugiero para remediar |
 
+## Exploit Prevention (RASP)
+
+El lab trae RASP habilitado (`DD_APPSEC_RASP_ENABLED=true`). RASP engancha el
+sink de Postgres (psycopg2) y detecta el SQLi **en el momento en que llegaría a
+la base**, con stack trace de la línea exacta.
+
+- **Detección:** sale de fábrica en modo *monitor* → verás el evento de
+  *Exploit Prevention* en la pestaña **Security** de la traza, con el stack trace.
+- **Bloqueo (403):** se activa por Remote Config desde la UI, sin redeploy:
+  **Security → App and API Protection → Protection → Exploit Prevention** → ponlo
+  en **Block**. Luego corre `attacker.sh` otra vez y el SQLi devuelve `403`.
+
+> Requiere `ddtrace>=2.21`. La versión del lab ya cumple.
+
 ## Dónde mirar en Datadog
 
 - **Signals:** Security → App and API Protection → Signals (`service:prosperia-patient-api`)

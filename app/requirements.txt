@@ -1,5 +1,4 @@
 Flask==3.0.3
 psycopg2-binary==2.9.9
 gunicorn==22.0.0
-ddtrace==2.11.2
-wrapt>=1.16.0
+ddtrace==2.21.12
