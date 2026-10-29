@@ -29,6 +29,20 @@ docker compose up -d --build
 Local la IP del atacante será privada; para que se vea geo/reputación real en la
 demo, usa Terraform.
 
+### Demo en vivo, paso por paso
+
+Para presentar: `attack/demo.sh` va pausando entre cada paso para que te cambies
+a Datadog y lo muestres, e imprime el guion de "qué decir".
+
+```bash
+./attack/demo.sh http://localhost:8080      # o la IP de la EC2
+```
+
+Nota: si tu org ya tiene la regla OWASP de SQLi en modo *Block* (Remote Config),
+el SQLi devolverá `403` desde el paso 2. El contraste "antes/después" en vivo se
+luce mejor con **Block IP** en el paso 5: el escaneo benigno (`q=maria`) pasa de
+`200` a `403` una vez bloqueada la IP.
+
 ## Opción B — Terraform (recomendado para la demo)
 
 ```bash
