@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: prosperia
+      POSTGRES_PASSWORD: prosperia
+      POSTGRES_DB: prosperia
+    volumes:
+      - ./app/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prosperia"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: ./app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      # --- Datadog APM + AAP ---
+      DD_AGENT_HOST: datadog-agent
+      DD_ENV: demo
+      DD_SERVICE: prosperia-patient-api
+      DD_VERSION: "1.0.0"
+      DD_APPSEC_ENABLED: "true"            # App & API Protection (ASM)
+      DD_IAST_ENABLED: "true"              # Code Security / IAST (linea del f-string)
+      DD_APPSEC_WAF_TIMEOUT: "10000"
+      DD_REMOTE_CONFIGURATION_ENABLED: "true"   # Block IP en vivo desde la UI
+      DD_TRACE_SAMPLE_RATE: "1"
+
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_APM_ENABLED: "true"
+      DD_APM_NON_LOCAL_TRAFFIC: "true"
+      DD_REMOTE_CONFIGURATION_ENABLED: "true"
+      DD_LOGS_ENABLED: "true"
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    ports:
+      - "8126:8126"
