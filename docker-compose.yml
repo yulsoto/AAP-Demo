@@ -17,6 +17,9 @@ services:
     build: ./app
     ports:
       - "8080:8080"
+    labels:
+      # Autodiscovery: manda los logs de este contenedor a Cloud SIEM como JSON.
+      com.datadoghq.ad.logs: '[{"source":"python","service":"prosperia-patient-api"}]'
     depends_on:
       db:
         condition: service_healthy

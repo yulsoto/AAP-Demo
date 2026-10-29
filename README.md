@@ -85,6 +85,27 @@ la base**, con stack trace de la línea exacta.
 
 > Requiere `ddtrace>=2.21`. La versión del lab ya cumple.
 
+## Escenario 2 — Cloud SIEM + alertas + Workflow Automation
+
+Historia: *"Miguel se va de vacaciones y nadie monitorea."* La app emite logs de
+autenticación en JSON con los atributos estándar de Datadog
+(`@evt.category:authentication`, `@evt.outcome`, `@usr.id`,
+`@network.client.ip`), así las **detection rules out-of-the-box** de credential
+stuffing / brute force hacen match sin regla custom.
+
+```bash
+./attack/demo2-siem.sh http://localhost:8080      # guiado, paso por paso
+```
+
+Simula 100 intentos fallidos desde una sola IP (`X-Forwarded-For`) contra 10
+usuarios → Cloud SIEM dispara la señal de ATO → notificación → workflow de bloqueo.
+
+Qué dejar listo en la UI antes de la demo:
+- **Logs:** confirma que llegan con `service:prosperia-patient-api @evt.category:authentication`
+- **Cloud SIEM:** habilita las reglas OOTB *Credential Stuffing* / *Brute Force*
+- **Workflow Automation:** blueprint que, desde la señal, bloquea la IP (AAP Block IP vía API) o deshabilita al usuario
+- **Dashboard de seguridad:** IPs atacantes, # de ataques, frecuencia, top usuarios objetivo (usa el skill `/dashboard`)
+
 ## Dónde mirar en Datadog
 
 - **Signals:** Security → App and API Protection → Signals (`service:prosperia-patient-api`)
