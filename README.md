@@ -85,6 +85,27 @@ la base**, con stack trace de la línea exacta.
 
 > Requiere `ddtrace>=2.21`. La versión del lab ya cumple.
 
+## Variar tipos de ataque y geografía (poblar geomap y serie "by type")
+
+`attack/geo-mix.sh` manda SQLi, XSS, SSRF y scanner desde IPs de 10 países
+(spoofeadas con `X-Forwarded-For`) para poblar el geomap de AAP y la serie de
+"attack attempts by type".
+
+```bash
+./attack/geo-mix.sh http://localhost:8080 3      # 3 vueltas por país
+```
+
+Requiere `DD_TRACE_CLIENT_IP_ENABLED=true` (ya está en `docker-compose.yml`): sin
+eso, AAP usa la IP de egreso real y el geomap muestra un solo país. AAP inspecciona
+todos los parámetros del request aunque la app no sea vulnerable a XSS/SSRF, así
+que basta con mandar el payload en un parámetro para que la regla dispare.
+
+Notas:
+- XSS/SSRF suelen venir en modo *monitor* (HTTP 200); igual generan señal. Para
+  bloquearlas, pásalas a *Block* en Protection, como con el SQLi.
+- La geolocalización depende de la base de IPs de Datadog; verifica el geomap y
+  ajusta las IPs en el script si alguna cae en otro país.
+
 ## Escenario 2 — Cloud SIEM + alertas + Workflow Automation
 
 Historia: *"Miguel se va de vacaciones y nadie monitorea."* La app emite logs de

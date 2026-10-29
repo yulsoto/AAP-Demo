@@ -32,6 +32,7 @@ services:
       DD_VERSION: "1.0.0"
       DD_APPSEC_ENABLED: "true"            # App & API Protection (ASM)
       DD_APPSEC_RASP_ENABLED: "true"       # Exploit Prevention (RASP): bloquea SQLi/LFI/SSRF en runtime
+      DD_TRACE_CLIENT_IP_ENABLED: "true"   # usar X-Forwarded-For como IP del atacante (geo real/spoofed)
       DD_IAST_ENABLED: "true"              # Code Security / IAST (linea del f-string)
       DD_APPSEC_WAF_TIMEOUT: "10000"
       DD_REMOTE_CONFIGURATION_ENABLED: "true"   # Block IP en vivo desde la UI
